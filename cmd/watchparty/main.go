@@ -2,11 +2,15 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
+	"syscall"
 
 	"github.com/ryanbromati/watchparty/internal/config"
+	"github.com/ryanbromati/watchparty/internal/session"
 )
 
 const version = "dev"
@@ -49,13 +53,26 @@ func runShare(args []string) int {
 		}
 	}
 
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	sess, err := session.Start(ctx, opts)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "erro:", err)
+		return 1
+	}
+
 	fmt.Printf("watchparty %s\n", version)
-	fmt.Printf("Transporte : %s\n", opts.Transport)
+	fmt.Printf("URL        : %s\n", sess.URL())
+	fmt.Printf("Sala       : %s\n", sess.Room())
+	fmt.Printf("Senha      : %s  (verificação em breve)\n", opts.Password)
 	fmt.Printf("Qualidade  : %s (%d kbps)\n", opts.Quality, opts.VideoBitrateKbps())
-	fmt.Printf("Max viewers: %d\n", opts.MaxViewers)
-	fmt.Printf("Sala       : %s\n", opts.Room)
-	fmt.Printf("Senha      : %s\n", opts.Password)
-	fmt.Println("(captura/URL: próxima fase)")
+	fmt.Printf("Áudio      : %s\n", sess.AudioSource())
+	fmt.Println("Ctrl+C encerra a sessão")
+
+	<-ctx.Done()
+	fmt.Println("\nsessão encerrada")
+	sess.Close()
 	return 0
 }
 
