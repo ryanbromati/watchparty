@@ -45,6 +45,7 @@ func FFmpegArgs(video Source, audio *Source, vbKbps int, outHeight int, segPatte
 	}
 	args = append(args,
 		"-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "23",
+		"-rc-lookahead", "20", "-multipass", "2",
 		"-b:v", fmt.Sprintf("%dk", vbKbps),
 		"-maxrate", fmt.Sprintf("%dk", vbKbps*4/3),
 		"-bufsize", fmt.Sprintf("%dk", vbKbps*2),
@@ -59,7 +60,7 @@ func FFmpegArgs(video Source, audio *Source, vbKbps int, outHeight int, segPatte
 	args = append(args,
 		"-f", "hls",
 		"-hls_time", "2",
-		"-hls_list_size", "8",
+		"-hls_list_size", "6",
 		"-hls_flags", "delete_segments+independent_segments+temp_file",
 		"-hls_segment_filename", segPattern,
 		hlsIndex,

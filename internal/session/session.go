@@ -3,6 +3,7 @@
 package session
 
 import (
+	"compress/gzip"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ryanbromati/watchparty/internal/auth"
 	"github.com/ryanbromati/watchparty/internal/capture"
@@ -46,7 +48,7 @@ func Start(parent context.Context, opts config.Options) (*Session, error) {
 	}
 
 	ctx, cancel := context.WithCancel(parent)
-	hlsDir, err := os.MkdirTemp("", "watchparty-")
+	hlsDir, err := os.MkdirTemp(ramDir(), "watchparty-")
 	if err != nil {
 		cancel()
 		return nil, fmt.Errorf("criar dir temporário: %w", err)
@@ -168,7 +170,7 @@ func (s *Session) newHandler() (http.Handler, error) {
 	mux.HandleFunc("/api/login", s.handleLogin)
 	mux.HandleFunc("/api/presence", s.handlePresence)
 	mux.HandleFunc("/api/stats", s.handleStats)
-	mux.Handle("/live/", s.requireSession(http.StripPrefix("/live/", http.FileServer(http.Dir(s.hlsDir)))))
+	mux.Handle("/live/", s.requireSession(liveMedia(http.StripPrefix("/live/", http.FileServer(http.Dir(s.hlsDir))))))
 	mux.Handle("/", http.FileServer(http.FS(dist)))
 	return mux, nil
 }
@@ -267,12 +269,49 @@ func (s *Session) requireSession(next http.Handler) http.Handler {
 	})
 }
 
+// liveMedia ajusta cabeçalhos e comprime a playlist .m3u8 (gzip) — re-buscada
+// pelo hls.js a cada ~2s, então menos bytes/TTFB ajudam.
+func liveMedia(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-store")
+		if strings.HasSuffix(r.URL.Path, ".m3u8") {
+			w.Header().Set("Content-Type", "application/vnd.apple.mpegurl")
+			if strings.Contains(r.Header.Get("Accept-Encoding"), "gzip") {
+				w.Header().Set("Content-Encoding", "gzip")
+				gz := gzip.NewWriter(w)
+				defer gz.Close()
+				next.ServeHTTP(gzipResponseWriter{ResponseWriter: w, gz: gz}, r)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+type gzipResponseWriter struct {
+	http.ResponseWriter
+	gz *gzip.Writer
+}
+
+func (g gzipResponseWriter) Write(b []byte) (int, error) {
+	return g.gz.Write(b)
+}
+
 func readToken(r *http.Request) string {
 	c, err := r.Cookie(cookieName)
 	if err != nil {
 		return ""
 	}
 	return c.Value
+}
+
+// ramDir devolve o diretório de memória (tmpfs) preferido para os segmentos
+// HLS — XDG_RUNTIME_DIR quando disponível (fica em RAM), senão o /tmp do SO.
+func ramDir() string {
+	if d := os.Getenv("XDG_RUNTIME_DIR"); d != "" {
+		return d
+	}
+	return ""
 }
 
 func clientIP(r *http.Request) string {

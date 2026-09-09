@@ -38,8 +38,8 @@ function ended() {
 function attach() {
   if (Hls.isSupported()) {
     const hls = new Hls({
-      liveSyncDurationCount: 3,
-      maxBufferLength: 12,
+      liveSyncDurationCount: 2,
+      maxBufferLength: 8,
       manifestLoadingTimeOut: 10000,
       manifestLoadingMaxRetry: 3,
     })
