@@ -65,6 +65,9 @@ func runShare(args []string) int {
 
 	fmt.Printf("watchparty %s\n", version)
 	fmt.Printf("URL        : %s\n", sess.URL())
+	if sess.LocalURL() != sess.URL() {
+		fmt.Printf("Local      : %s\n", sess.LocalURL())
+	}
 	fmt.Printf("Sala       : %s\n", sess.Room())
 	fmt.Printf("Senha      : %s  (verificação em breve)\n", opts.Password)
 	fmt.Printf("Qualidade  : %s (%d kbps)\n", opts.Quality, opts.VideoBitrateKbps())

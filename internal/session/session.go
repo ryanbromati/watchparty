@@ -15,6 +15,7 @@ import (
 	"github.com/ryanbromati/watchparty/internal/capture"
 	"github.com/ryanbromati/watchparty/internal/config"
 	"github.com/ryanbromati/watchparty/internal/presence"
+	"github.com/ryanbromati/watchparty/internal/transport"
 	"github.com/ryanbromati/watchparty/internal/webui"
 )
 
@@ -29,6 +30,7 @@ type Session struct {
 	hlsDir string
 	srv    *http.Server
 	ln     net.Listener
+	public string
 	cancel context.CancelFunc
 	pipe   *capture.Pipeline
 }
@@ -92,11 +94,33 @@ func Start(parent context.Context, opts config.Options) (*Session, error) {
 	s.ln = ln
 	s.srv = &http.Server{Handler: handler}
 	go func() { _ = s.srv.Serve(ln) }()
+
+	port := ln.Addr().(*net.TCPAddr).Port
+	tr, err := transport.New(string(opts.Transport))
+	if err != nil {
+		cancel()
+		pipe.Stop()
+		_ = os.RemoveAll(hlsDir)
+		return nil, err
+	}
+	pub, err := tr.Start(ctx, port)
+	if err != nil {
+		cancel()
+		pipe.Stop()
+		_ = os.RemoveAll(hlsDir)
+		return nil, fmt.Errorf("abrir transporte %s: %w", opts.Transport, err)
+	}
+	s.public = pub
 	return s, nil
 }
 
-// URL retorna a URL local do viewer (ex.: http://127.0.0.1:PORT).
+// URL retorna a URL pública (túnel) ou a local se o transporte for local.
 func (s *Session) URL() string {
+	return s.public
+}
+
+// LocalURL retorna a URL local do viewer (ex.: http://127.0.0.1:PORT).
+func (s *Session) LocalURL() string {
 	return "http://" + s.ln.Addr().String()
 }
 
