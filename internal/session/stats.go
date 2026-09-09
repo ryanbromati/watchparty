@@ -30,7 +30,9 @@ func (s *Session) readStats() (stats, error) {
 	if err != nil {
 		return st, err
 	}
-	st.Seq, st.LastMediaEnd = parseIndex(data)
+	seq, count := parseIndex(data)
+	st.Seq = seq
+	st.LastMediaEnd = (seq + count) * st.SegmentDuration
 
 	sizes := segmentSizes(s.hlsDir, 5)
 	if n := len(sizes); n > 0 {

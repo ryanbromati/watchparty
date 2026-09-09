@@ -27,7 +27,7 @@ func TestFFmpegArgsVideoAudio(t *testing.T) {
 		"-c:a", "aac", "-b:a", "192k", "-ac", "2", "-ar", "48000",
 		"-af", "aresample=async=1:first_pts=0",
 		"-f", "hls", "-hls_time", "2", "-hls_list_size", "8",
-		"-hls_flags", "delete_segments+independent_segments",
+		"-hls_flags", "delete_segments+independent_segments+temp_file",
 		"-hls_segment_filename", "/tmp/hls/seg_%05d.ts",
 		"/tmp/hls/index.m3u8",
 	}

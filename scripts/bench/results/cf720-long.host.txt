@@ -1,0 +1,13 @@
+--- sample 1 ---
+  64593 wf-recorder     46.0  1.7 wf-recorder -y -r 30 -m mpegts -f /tmp/watchparty-3522053473/cap.ts
+  64594 ffmpeg          15.3  2.8 ffmpeg -hide_banner -loglevel warning -analyzeduration 2000000 -probesize 20M -f mpegts -i /tmp/watchparty-3522053473/cap.ts -f pulse -i alsa_output.usb-TTGK_Technology_Co._Ltd_CX31993_384Khz_HIFI_AUDIO-00.analog-stereo.monitor -map 0:v:0 -map 1:a:0 -c:v h264_nvenc -preset p4 -rc vbr -cq 23 -b:v 3000k -maxrate 4000k -bufsize 6000k -g 60 -keyint_min 60 -pix_fmt yuv420p -c:a aac -b:a 192k -ac 2 -ar 48000 -af aresample=async=1:first_pts=0 -f hls -hls_time 2 -hls_list_size 8 -hls_flags delete_segments+independent_segments+temp_file -hls_segment_filename /tmp/watchparty-3522053473/seg_%05d.ts /tmp/watchparty-3522053473/index.m3u8
+24 %, 0 %, 1091 MiB
+--- sample 2 ---
+  64593 wf-recorder     45.1  1.7 wf-recorder -y -r 30 -m mpegts -f /tmp/watchparty-3522053473/cap.ts
+  64594 ffmpeg          15.3  2.9 ffmpeg -hide_banner -loglevel warning -analyzeduration 2000000 -probesize 20M -f mpegts -i /tmp/watchparty-3522053473/cap.ts -f pulse -i alsa_output.usb-TTGK_Technology_Co._Ltd_CX31993_384Khz_HIFI_AUDIO-00.analog-stereo.monitor -map 0:v:0 -map 1:a:0 -c:v h264_nvenc -preset p4 -rc vbr -cq 23 -b:v 3000k -maxrate 4000k -bufsize 6000k -g 60 -keyint_min 60 -pix_fmt yuv420p -c:a aac -b:a 192k -ac 2 -ar 48000 -af aresample=async=1:first_pts=0 -f hls -hls_time 2 -hls_list_size 8 -hls_flags delete_segments+independent_segments+temp_file -hls_segment_filename /tmp/watchparty-3522053473/seg_%05d.ts /tmp/watchparty-3522053473/index.m3u8
+38 %, 19 %, 1073 MiB
+--- sample 3 ---
+  64593 wf-recorder     45.4  1.7 wf-recorder -y -r 30 -m mpegts -f /tmp/watchparty-3522053473/cap.ts
+  64594 ffmpeg          15.2  2.8 ffmpeg -hide_banner -loglevel warning -analyzeduration 2000000 -probesize 20M -f mpegts -i /tmp/watchparty-3522053473/cap.ts -f pulse -i alsa_output.usb-TTGK_Technology_Co._Ltd_CX31993_384Khz_HIFI_AUDIO-00.analog-stereo.monitor -map 0:v:0 -map 1:a:0 -c:v h264_nvenc -preset p4 -rc vbr -cq 23 -b:v 3000k -maxrate 4000k -bufsize 6000k -g 60 -keyint_min 60 -pix_fmt yuv420p -c:a aac -b:a 192k -ac 2 -ar 48000 -af aresample=async=1:first_pts=0 -f hls -hls_time 2 -hls_list_size 8 -hls_flags delete_segments+independent_segments+temp_file -hls_segment_filename /tmp/watchparty-3522053473/seg_%05d.ts /tmp/watchparty-3522053473/index.m3u8
+18 %, 0 %, 1073 MiB
+PREFIX=cf720-long TRANSPORT=cloudflare QUALITY=720p AGENTS=3 SECONDS=480 URL=https://hose-fluid-details-beef.trycloudflare.com

@@ -1,0 +1,7 @@
+== cf720  (cloudflare/720p, 3 agentes, 150s) ==
+linhas: 450
+stall_count: 0
+segFetchMs p50/p95/max: 326/374/600 
+statsRttMs p50: 57
+seq primeiro/último: 0/72
+spread ultimo segIdx entre agentes: 75

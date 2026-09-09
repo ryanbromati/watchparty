@@ -54,7 +54,7 @@ func FFmpegArgs(video Source, audio *Source, vbKbps int, segPattern, hlsIndex st
 		"-f", "hls",
 		"-hls_time", "2",
 		"-hls_list_size", "8",
-		"-hls_flags", "delete_segments+independent_segments",
+		"-hls_flags", "delete_segments+independent_segments+temp_file",
 		"-hls_segment_filename", segPattern,
 		hlsIndex,
 	)

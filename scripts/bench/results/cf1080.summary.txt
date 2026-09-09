@@ -1,0 +1,7 @@
+== cf1080  (cloudflare/1080p, 3 agentes, 150s) ==
+linhas: 450
+stall_count: 0
+segFetchMs p50/p95/max: 301/477/1141 
+statsRttMs p50: 42
+seq primeiro/último: 0/72
+spread ultimo segIdx entre agentes: 74

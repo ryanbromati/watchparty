@@ -1,0 +1,7 @@
+== local720  (local/720p, 3 agentes, 90s) ==
+linhas: 267
+stall_count: 0
+segFetchMs p50/p95/max: 0/0/0 
+statsRttMs p50: 0
+seq primeiro/último: 0/38
+spread ultimo segIdx entre agentes: 44
