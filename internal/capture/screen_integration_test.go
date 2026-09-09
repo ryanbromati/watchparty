@@ -33,6 +33,7 @@ func TestScreenToHLS(t *testing.T) {
 		Source{Format: "mpegts", URI: fifo},
 		&Source{Format: "pulse", URI: audio},
 		3000,
+		720,
 		filepath.Join(dir, "seg_%05d.ts"),
 		filepath.Join(dir, "index.m3u8"),
 	)

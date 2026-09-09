@@ -57,6 +57,7 @@ func Start(parent context.Context, opts config.Options) (*Session, error) {
 		capture.Source{Format: "mpegts", URI: fifo},
 		&capture.Source{Format: "pulse", URI: opts.Audio},
 		opts.VideoBitrateKbps(),
+		opts.OutputHeight(),
 		filepath.Join(hlsDir, "seg_%05d.ts"),
 		filepath.Join(hlsDir, "index.m3u8"),
 	)

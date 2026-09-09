@@ -16,15 +16,18 @@ type Source struct {
 
 // WFRecorderArgs devolve os args do wf-recorder para gravar só vídeo,
 // em framerate constante, muxado como mpegts, na FIFO.
+// Usa libx264 ultrafast no intermediário (mais leve que o default superfast),
+// já que o ffmpeg vai decodificar e re-encodar com NVENC em seguida.
 func WFRecorderArgs(fifo string, fps string) []string {
-	return []string{"-y", "-r", fps, "-m", "mpegts", "-f", fifo}
+	return []string{"-y", "-r", fps, "-c", "libx264", "-p", "preset=ultrafast", "-m", "mpegts", "-f", fifo}
 }
 
 // FFmpegArgs devolve os args do ffmpeg para o pipeline ao vivo:
 // decodifica vídeo (fifo mpegts) e áudio (pulse monitor) e re-encodeia
 // h264_nvenc + aac em HLS (segmentos 2s, janela ~16s).
 // Se audio for nil, o pipeline fica sem áudio.
-func FFmpegArgs(video Source, audio *Source, vbKbps int, segPattern, hlsIndex string) []string {
+// outHeight > 0 aplica scale preservando proporção (ex.: 720 para 720p).
+func FFmpegArgs(video Source, audio *Source, vbKbps int, outHeight int, segPattern, hlsIndex string) []string {
 	args := []string{
 		"-hide_banner", "-loglevel", "warning",
 		"-analyzeduration", "2000000", "-probesize", "20M",
@@ -36,6 +39,9 @@ func FFmpegArgs(video Source, audio *Source, vbKbps int, segPattern, hlsIndex st
 	args = append(args, "-map", "0:v:0")
 	if audio != nil {
 		args = append(args, "-map", "1:a:0")
+	}
+	if outHeight > 0 {
+		args = append(args, "-vf", fmt.Sprintf("scale=-2:%d", outHeight))
 	}
 	args = append(args,
 		"-c:v", "h264_nvenc", "-preset", "p4", "-rc", "vbr", "-cq", "23",

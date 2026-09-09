@@ -20,7 +20,7 @@ func TestFFmpegArgsGeneratesLiveHLS(t *testing.T) {
 	dir := t.TempDir()
 	video := Source{Format: "lavfi", URI: "testsrc2=size=640x360:rate=30:duration=9"}
 	audio := Source{Format: "lavfi", URI: "sine=frequency=440:sample_rate=48000:duration=9"}
-	args := FFmpegArgs(video, &audio, 2000,
+	args := FFmpegArgs(video, &audio, 2000, 0,
 		filepath.Join(dir, "seg_%05d.ts"),
 		filepath.Join(dir, "index.m3u8"))
 

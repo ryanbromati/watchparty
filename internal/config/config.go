@@ -108,6 +108,14 @@ func (o Options) VideoBitrateKbps() int {
 	return 6000
 }
 
+// OutputHeight retorna a altura de saída conforme a qualidade (720/1080).
+func (o Options) OutputHeight() int {
+	if o.Quality == Quality720p {
+		return 720
+	}
+	return 1080
+}
+
 // GenerateSlug gera um slug curto para a sala (URL path).
 func GenerateSlug() (string, error) {
 	const pool = "abcdefghijklmnopqrstuvwxyz0123456789"
