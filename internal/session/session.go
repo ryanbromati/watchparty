@@ -166,6 +166,7 @@ func (s *Session) newHandler() (http.Handler, error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/api/login", s.handleLogin)
 	mux.HandleFunc("/api/presence", s.handlePresence)
+	mux.HandleFunc("/api/stats", s.handleStats)
 	mux.Handle("/live/", s.requireSession(http.StripPrefix("/live/", http.FileServer(http.Dir(s.hlsDir)))))
 	mux.Handle("/", http.FileServer(http.FS(dist)))
 	return mux, nil
@@ -230,6 +231,26 @@ func (s *Session) handlePresence(w http.ResponseWriter, r *http.Request) {
 	}
 	s.hub.Beat(tok)
 	writeJSON(w, http.StatusOK, map[string]int{"viewers": s.hub.Count(), "max": s.hub.Max()})
+}
+
+// handleStats devolve telemetria do HLS vivo (exige sessão).
+func (s *Session) handleStats(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, "método não permitido", http.StatusMethodNotAllowed)
+		return
+	}
+	tok := readToken(r)
+	if !s.auth.Valid(tok) {
+		http.Error(w, "não autenticado", http.StatusUnauthorized)
+		return
+	}
+	s.hub.Beat(tok)
+	st, err := s.readStats()
+	if err != nil {
+		st.Seq = -1
+		st.BitrateKbps = -1
+	}
+	writeJSON(w, http.StatusOK, st)
 }
 
 // requireSession exige sessão válida antes de servir o handler interno.

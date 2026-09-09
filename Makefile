@@ -17,7 +17,7 @@ vet:
 # Rodar tudo: build + watchparty + túnel (cloudflare por padrão).
 # Sem -password o app pergunta a senha no terminal (Enter = sem senha).
 TRANSPORT ?= cloudflare
-QUALITY ?= 720p
+QUALITY ?= 1080p
 MAXVIEWERS ?= 3
 
 run: build

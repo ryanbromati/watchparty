@@ -10,6 +10,13 @@ const resumeBtn = document.getElementById('resume') as HTMLButtonElement
 const peersEl = document.getElementById('peers') as HTMLElement
 
 const LIVE_URL = '/live/index.m3u8'
+const DEBUG = new URLSearchParams(location.search).has('debug')
+
+declare global {
+  interface Window {
+    __hls?: Hls | null
+  }
+}
 
 function showError(msg: string) {
   errEl.textContent = msg
@@ -38,6 +45,7 @@ function attach() {
     })
     hls.loadSource(LIVE_URL)
     hls.attachMedia(video)
+    if (DEBUG) window.__hls = hls
     hls.on(Hls.Events.MANIFEST_PARSED, play)
     hls.on(Hls.Events.ERROR, (_evt, data) => {
       if (!data.fatal) return
