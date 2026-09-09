@@ -55,11 +55,15 @@
 - [x] `watchparty share` sobe captura real → viewer + HLS ao vivo em `http://127.0.0.1:PORT` (smoke E2E PASS: index, playlist, segmentos, stop limpo).
 - [x] Commit.
 
-## Fase 4 — Auth + presença
+## Fase 4 — Auth + presença [CONCLUÍDA]
 
-- [ ] `internal/auth`: senha tempo constante, sessões+cookie, rate-limit (testes unitários).
-- [ ] `internal/presence`: heartbeat GET → janela 15s → contagem (testes).
-- [ ] Proteger `/live/*` e playlist com cookie.
+- [x] `internal/auth`: senha tempo constante, sessões+cookie, rate-limit por IP (testes).
+- [x] `internal/presence`: heartbeat GET → janela 15s → contagem e limite (testes).
+- [x] Rotas `/api/login`, `/api/presence`; `/live/*` exige cookie.
+- [x] Viewer com gate de senha, "sala cheia", heartbeat e contador N/M.
+- [x] Smoke: 401 sem cookie, 401 senha errada, 200 login, 200 live c/ cookie, 429 sala cheia, 429 rate-limit — PASS.
+- [x] Contador de espectadores no terminal (5s).
+- [x] Commit.
 
 ## Fase 5 — Transportes
 
