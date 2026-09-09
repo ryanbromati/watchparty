@@ -1,9 +1,6 @@
 package config
 
-import (
-	"strings"
-	"testing"
-)
+import "testing"
 
 func TestDefaults(t *testing.T) {
 	o, err := ParseFlags(nil)
@@ -19,8 +16,12 @@ func TestDefaults(t *testing.T) {
 	if o.Quality != Quality1080p {
 		t.Errorf("quality default = %q, want 1080p", o.Quality)
 	}
-	if o.Password == "" {
-		t.Error("password deve ser auto-gerada")
+	if o.PasswordExplicit {
+		t.Error("password não deveria estar marcada como explícita sem -password")
+	}
+	// Sem -password e sem terminal, senha fica vazia (sem senha é permitido).
+	if o.Password != "" {
+		t.Errorf("password default = %q, want vazio", o.Password)
 	}
 	if o.Room == "" {
 		t.Error("room deve ser auto-gerada")
@@ -38,6 +39,9 @@ func TestProvidedValuesAreKept(t *testing.T) {
 	if o.Password != "minha-senha" {
 		t.Errorf("password = %q", o.Password)
 	}
+	if !o.PasswordExplicit {
+		t.Error("password deveria estar marcada como explícita")
+	}
 	if o.Room != "sala1" {
 		t.Errorf("room = %q", o.Room)
 	}
@@ -46,6 +50,16 @@ func TestProvidedValuesAreKept(t *testing.T) {
 	}
 	if o.Quality != Quality720p {
 		t.Errorf("quality = %q", o.Quality)
+	}
+}
+
+func TestEmptyPasswordAllowed(t *testing.T) {
+	o, err := ParseFlags([]string{"-transport", "cloudflare"})
+	if err != nil {
+		t.Fatalf("ParseFlags: %v", err)
+	}
+	if o.Password != "" {
+		t.Errorf("senha vazia deveria ser aceita, got %q", o.Password)
 	}
 }
 
@@ -82,17 +96,6 @@ func TestVideoBitrate(t *testing.T) {
 	}
 }
 
-func TestGeneratePasswordFormat(t *testing.T) {
-	p, err := GeneratePassword()
-	if err != nil {
-		t.Fatalf("GeneratePassword: %v", err)
-	}
-	parts := strings.Split(p, "-")
-	if len(parts) != 3 || parts[0] == "" || parts[1] == "" || parts[2] == "" {
-		t.Errorf("formato inesperado: %q", p)
-	}
-}
-
 func TestGenerateSlugLength(t *testing.T) {
 	s, err := GenerateSlug()
 	if err != nil {
@@ -100,13 +103,5 @@ func TestGenerateSlugLength(t *testing.T) {
 	}
 	if len(s) != 6 {
 		t.Errorf("slug length = %d, want 6", len(s))
-	}
-}
-
-func TestGenerateDistinct(t *testing.T) {
-	a, _ := GenerateSlug()
-	b, _ := GenerateSlug()
-	if a == b {
-		t.Log("slugs iguais por sorte; aceitável")
 	}
 }

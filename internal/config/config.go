@@ -26,19 +26,20 @@ const (
 
 // Options é a configuração resolvida de uma sessão `share`.
 type Options struct {
-	Transport  Transport
-	Password   string // sempre preenchida (fornecida ou gerada)
-	MaxViewers int
-	Quality    Quality
-	Room       string // sempre preenchida (fornecida ou gerada)
-	Audio      string // fonte de áudio; vazio = auto-detectada em runtime
+	Transport        Transport
+	Password         string // escolha do usuário; "" = sala sem senha
+	PasswordExplicit bool   // true se -password foi passada explicitamente
+	MaxViewers       int
+	Quality          Quality
+	Room             string // sempre preenchida (fornecida ou gerada)
+	Audio            string // fonte de áudio; vazio = auto-detectada em runtime
 }
 
 // ParseFlags interpreta os argumentos do subcomando `share`.
 func ParseFlags(args []string) (Options, error) {
 	fs := flag.NewFlagSet("share", flag.ContinueOnError)
 	transport := fs.String("transport", string(TransportTailscale), "transporte: local | tailscale | cloudflare")
-	password := fs.String("password", "", "senha da sala (auto-gerada se vazia)")
+	password := fs.String("password", "", "senha da sala (perguntada se não informada; vazia = sem senha)")
 	maxViewers := fs.Int("max-viewers", 3, "limite de espectadores simultâneos")
 	quality := fs.String("quality", string(Quality1080p), "qualidade: 720p | 1080p")
 	room := fs.String("room", "", "slug da sala no link (auto-gerado se vazio)")
@@ -51,17 +52,21 @@ func ParseFlags(args []string) (Options, error) {
 		return Options{}, fmt.Errorf("argumentos inesperados: %v", fs.Args())
 	}
 
+	explicit := false
+	fs.Visit(func(f *flag.Flag) {
+		if f.Name == "password" {
+			explicit = true
+		}
+	})
+
 	opts := Options{
-		Transport:  Transport(*transport),
-		MaxViewers: *maxViewers,
-		Quality:    Quality(*quality),
-		Audio:      *audio,
-	}
-	if opts.Password == "" {
-		opts.Password = *password
-	}
-	if opts.Room == "" {
-		opts.Room = *room
+		Transport:        Transport(*transport),
+		Password:         *password,
+		PasswordExplicit: explicit,
+		MaxViewers:       *maxViewers,
+		Quality:          Quality(*quality),
+		Audio:            *audio,
+		Room:             *room,
 	}
 	if err := opts.normalize(); err != nil {
 		return Options{}, err
@@ -83,24 +88,14 @@ func (o *Options) normalize() error {
 	if o.MaxViewers < 1 {
 		return errors.New("max-viewers deve ser >= 1")
 	}
-	if o.Password == "" {
-		p, err := GeneratePassword()
-		if err != nil {
-			return err
-		}
-		o.Password = p
-	}
+	o.Password = strings.TrimSpace(o.Password)
+	o.Room = strings.TrimSpace(o.Room)
 	if o.Room == "" {
 		r, err := GenerateSlug()
 		if err != nil {
 			return err
 		}
 		o.Room = r
-	}
-	o.Password = strings.TrimSpace(o.Password)
-	o.Room = strings.TrimSpace(o.Room)
-	if o.Password == "" || o.Room == "" {
-		return errors.New("password e room não podem ser vazios")
 	}
 	return nil
 }
@@ -111,37 +106,6 @@ func (o Options) VideoBitrateKbps() int {
 		return 3000
 	}
 	return 6000
-}
-
-var wordlist = []string{
-	"banana", "carambola", "dente", "foguete", "girassol", "horizonte",
-	"ilha", "jabuticaba", "labirinto", "montanha", "neblina", "oceano",
-	"pipoca", "quero", "rio", "serenata", "tulipa", "vulcao",
-}
-
-// GeneratePassword gera uma senha legível ("palavra-palavra-NN").
-func GeneratePassword() (string, error) {
-	w1, err := pickWord()
-	if err != nil {
-		return "", err
-	}
-	w2, err := pickWord()
-	if err != nil {
-		return "", err
-	}
-	n, err := randInt(100)
-	if err != nil {
-		return "", err
-	}
-	return fmt.Sprintf("%s-%s-%02d", w1, w2, n), nil
-}
-
-func pickWord() (string, error) {
-	i, err := randInt(len(wordlist))
-	if err != nil {
-		return "", err
-	}
-	return wordlist[i], nil
 }
 
 // GenerateSlug gera um slug curto para a sala (URL path).

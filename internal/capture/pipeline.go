@@ -14,12 +14,12 @@ import (
 // wf-recorder (vídeo → FIFO) e ffmpeg (FIFO + áudio → HLS), com restart
 // com backoff caso algum caia antes do esperado.
 type Pipeline struct {
-	ffmpegPath    string
-	recorderPath  string
-	ffmpegArgs    []string
-	recorderArgs  []string
-	fifo          string
-	outDir        string
+	ffmpegPath   string
+	recorderPath string
+	ffmpegArgs   []string
+	recorderArgs []string
+	fifo         string
+	outDir       string
 
 	maxFFmpegRestarts   int
 	maxRecorderRestarts int

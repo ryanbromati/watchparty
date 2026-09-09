@@ -42,16 +42,22 @@ Instalação no Arch: `sudo pacman -S ffmpeg wf-recorder cloudflared` (ou `tails
 make web     # compila o viewer para internal/webui/dist (embutido no binário)
 make build   # gera ./bin/watchparty
 
+make run     # build + watchparty + Cloudflare (pergunta a senha; Enter = sem senha)
+
 ./bin/watchparty share -transport cloudflare -password minha-senha -room sala1
 # URL pública e senha aparecem no terminal; compartilhe com os amigos.
 ```
+
+A senha é sempre sua escolha: se você não passar `-password`, o app pergunta no
+terminal (com eco oculto). **Enter (duas vezes) = sala sem senha** — qualquer
+pessoa com o link pode entrar; nesse caso o app avisa.
 
 Flags do `share`:
 
 | Flag | Padrão | Descrição |
 |---|---|---|
 | `-transport` | `tailscale` | `local` \| `tailscale` \| `cloudflare` |
-| `-password` | auto-gerada | senha da sala |
+| `-password` | perguntada | senha da sala (vazia = sem senha; use `-password ""`) |
 | `-max-viewers` | `3` | limite de espectadores simultâneos |
 | `-quality` | `1080p` | `720p` \| `1080p` (bitrate de vídeo) |
 | `-room` | auto-gerado | slug da sala no link |

@@ -153,10 +153,11 @@ func (s *Session) Close() {
 }
 
 // newHandler monta as rotas:
-//   /            viewer embutido
-//   POST /api/login    autentica por senha e emite cookie
-//   GET  /api/presence heartbeat (exige sessão) → contagem
-//   /live/*      segmentos HLS (exige sessão)
+//
+//	/            viewer embutido
+//	POST /api/login    autentica por senha e emite cookie
+//	GET  /api/presence heartbeat (exige sessão) → contagem
+//	/live/*      segmentos HLS (exige sessão)
 func (s *Session) newHandler() (http.Handler, error) {
 	dist, err := webui.Dist()
 	if err != nil {
@@ -175,11 +176,6 @@ func (s *Session) handleLogin(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "método não permitido", http.StatusMethodNotAllowed)
 		return
 	}
-	ip := clientIP(r)
-	if !s.auth.Allowed(ip) {
-		writeJSON(w, http.StatusTooManyRequests, map[string]string{"error": "muitas tentativas; aguarde um minuto"})
-		return
-	}
 	var body struct {
 		Password string `json:"password"`
 	}
@@ -187,11 +183,19 @@ func (s *Session) handleLogin(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "json inválido"})
 		return
 	}
-	if !s.auth.CheckPassword(body.Password) {
-		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "senha incorreta"})
-		return
+	// Sala sem senha (opts.Password == "") aceita qualquer entrada.
+	if s.opts.Password != "" {
+		ip := clientIP(r)
+		if !s.auth.Allowed(ip) {
+			writeJSON(w, http.StatusTooManyRequests, map[string]string{"error": "muitas tentativas; aguarde um minuto"})
+			return
+		}
+		if !s.auth.CheckPassword(body.Password) {
+			writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "senha incorreta"})
+			return
+		}
+		s.auth.Reset(ip)
 	}
-	s.auth.Reset(ip)
 	if s.hub.Full() {
 		writeJSON(w, http.StatusTooManyRequests, map[string]string{"error": "sala cheia"})
 		return

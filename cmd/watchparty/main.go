@@ -54,6 +54,17 @@ func runShare(args []string) int {
 		}
 	}
 
+	// Senha é sempre sua escolha: se não veio por -password e o terminal está
+	// disponível, pergunta (Enter duas vezes = sem senha).
+	if !opts.PasswordExplicit && isTerminal(os.Stdin.Fd()) {
+		pw, err := choosePassword()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "erro:", err)
+			return 1
+		}
+		opts.Password = pw
+	}
+
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
@@ -69,7 +80,11 @@ func runShare(args []string) int {
 		fmt.Printf("Local      : %s\n", sess.LocalURL())
 	}
 	fmt.Printf("Sala       : %s\n", sess.Room())
-	fmt.Printf("Senha      : %s\n", opts.Password)
+	if opts.Password == "" {
+		fmt.Println("Senha      : (sem senha — qualquer pessoa com o link pode entrar)")
+	} else {
+		fmt.Printf("Senha      : %s\n", opts.Password)
+	}
 	fmt.Printf("Qualidade  : %s (%d kbps)\n", opts.Quality, opts.VideoBitrateKbps())
 	fmt.Printf("Áudio      : %s\n", sess.AudioSource())
 	fmt.Println("Ctrl+C encerra a sessão")
@@ -102,7 +117,7 @@ comandos:
 
 share:
   -transport local|tailscale|cloudflare   transporte (padrão tailscale)
-  -password SENHA                         senha da sala (auto-gerada se vazia)
+  -password SENHA                         senha da sala (perguntada se não informada; vazia = sem senha)
   -max-viewers N                          limite de espectadores (padrão 3)
   -quality 720p|1080p                     qualidade de vídeo (padrão 1080p)
   -room SLUG                              slug da sala no link (auto-gerado)

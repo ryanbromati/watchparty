@@ -1,4 +1,4 @@
-.PHONY: all build web test vet smoke
+.PHONY: all build web test vet smoke run run-local
 
 all: test build
 
@@ -14,5 +14,16 @@ test:
 vet:
 	go vet ./...
 
-smoke: build
-	./bin/watchparty share -transport local -password teste -room dev
+# Rodar tudo: build + watchparty + túnel (cloudflare por padrão).
+# Sem -password o app pergunta a senha no terminal (Enter = sem senha).
+TRANSPORT ?= cloudflare
+QUALITY ?= 720p
+MAXVIEWERS ?= 3
+
+run: build
+	./bin/watchparty share -transport $(TRANSPORT) -quality $(QUALITY) -max-viewers $(MAXVIEWERS)
+
+run-local: build
+	./bin/watchparty share -transport local -quality $(QUALITY)
+
+smoke: run-local

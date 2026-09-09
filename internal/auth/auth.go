@@ -12,20 +12,20 @@ import (
 )
 
 const (
-	sessionTTL     = 12 * time.Hour
-	attemptWindow  = time.Minute
-	maxAttempts    = 5
-	tokenBytes     = 32
+	sessionTTL    = 12 * time.Hour
+	attemptWindow = time.Minute
+	maxAttempts   = 5
+	tokenBytes    = 32
 )
 
 // Manager guarda o hash da senha, sessões ativas e tentativas por IP.
 type Manager struct {
-	mu        sync.Mutex
-	pwHash    [sha256.Size]byte
-	sessions  map[string]time.Time
-	attempts  map[string]*attempt
-	ttl       time.Duration
-	window    time.Duration
+	mu       sync.Mutex
+	pwHash   [sha256.Size]byte
+	sessions map[string]time.Time
+	attempts map[string]*attempt
+	ttl      time.Duration
+	window   time.Duration
 }
 
 type attempt struct {
