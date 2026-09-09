@@ -20,3 +20,4 @@ web/dist/
 *.swp
 .idea/
 .vscode/
+scripts/bench/viewer
