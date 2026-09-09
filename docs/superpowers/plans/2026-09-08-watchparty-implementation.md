@@ -73,10 +73,14 @@
 - [x] Smoke `--transport local` PASS (URL, login→live 200, presence).
 - [x] Commit.
 
-## Fase 6 — Teste real
+## Fase 6 — Teste real [PARCIAAL: túnel público validado]
 
-- [ ] Sessão ≥30 min com 3 espectadores reais; validar stall, latência e drift A/V; decidir 720p vs 1080p e bitrate.
+- [x] Acesso público validado de ponta a ponta via Cloudflare (200 viewer, 200 login, 200 live c/ cookie, 401 sem cookie, presence 1/3).
+- [ ] Sessão longa (≥30 min) com 3 espectadores humanos assistindo um filme — fica para o usuário rodar com amigos; valida drift A/V, stall e banda do túnel em produção.
 
-## Fase 7 — Polish
+## Fase 7 — Polish [CONCLUÍDA]
 
-- [ ] Mensagens acionáveis (ffmpeg/wf-recorder ausentes, portal), README, `make build`, push inicial.
+- [x] Mensagens acionáveis (pré-requisitos, transporte) e banner com URL pública/local.
+- [x] README (uso, requisitos, flags, notas) e Makefile (web/build/test/vet/smoke).
+- [x] Testes: 33 verdes; smoke local e público PASS.
+- [ ] Push inicial para o GitHub (a combinar).
