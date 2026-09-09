@@ -4,17 +4,25 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WatchParty</title>
-    <script type="module" crossorigin src="/assets/index-Dp_GO5zs.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DLLJXP8X.css">
+    <script type="module" crossorigin src="/assets/index-U72VZ3ZU.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-jIkK12hK.css">
   </head>
   <body>
     <main id="stage">
       <video id="video" playsinline></video>
-      <div id="overlay">
+      <div id="login">
         <div id="brand">🔒 watchparty</div>
-        <div id="status">Sala ativa</div>
+        <input
+          id="pw"
+          type="password"
+          placeholder="Senha da sala"
+          autocomplete="current-password"
+        />
         <button id="enter">Entrar e assistir</button>
+        <div id="error"></div>
       </div>
+      <button id="resume" hidden>▶ Tocar com áudio</button>
+      <div id="peers" hidden></div>
     </main>
   </body>
 </html>

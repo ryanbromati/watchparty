@@ -8,11 +8,19 @@
   <body>
     <main id="stage">
       <video id="video" playsinline></video>
-      <div id="overlay">
+      <div id="login">
         <div id="brand">🔒 watchparty</div>
-        <div id="status">Sala ativa</div>
+        <input
+          id="pw"
+          type="password"
+          placeholder="Senha da sala"
+          autocomplete="current-password"
+        />
         <button id="enter">Entrar e assistir</button>
+        <div id="error"></div>
       </div>
+      <button id="resume" hidden>▶ Tocar com áudio</button>
+      <div id="peers" hidden></div>
     </main>
     <script type="module" src="/src/main.ts"></script>
   </body>

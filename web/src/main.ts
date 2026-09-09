@@ -2,15 +2,28 @@ import './style.css'
 import Hls from 'hls.js'
 
 const video = document.getElementById('video') as HTMLVideoElement
-const overlay = document.getElementById('overlay') as HTMLElement
-const status = document.getElementById('status') as HTMLElement
-const enter = document.getElementById('enter') as HTMLButtonElement
+const loginEl = document.getElementById('login') as HTMLElement
+const pwEl = document.getElementById('pw') as HTMLInputElement
+const enterBtn = document.getElementById('enter') as HTMLButtonElement
+const errEl = document.getElementById('error') as HTMLElement
+const resumeBtn = document.getElementById('resume') as HTMLButtonElement
+const peersEl = document.getElementById('peers') as HTMLElement
 
 const LIVE_URL = '/live/index.m3u8'
 
+function showError(msg: string) {
+  errEl.textContent = msg
+}
+
+function play() {
+  video.play().catch(() => {
+    resumeBtn.hidden = false
+  })
+}
+
 function ended() {
-  status.textContent = 'Transmissão encerrada'
-  enter.disabled = true
+  showError('Transmissão encerrada')
+  enterBtn.disabled = true
   video.removeAttribute('src')
   video.load()
 }
@@ -25,13 +38,7 @@ function attach() {
     })
     hls.loadSource(LIVE_URL)
     hls.attachMedia(video)
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      status.textContent = 'Ao vivo'
-      overlay.classList.add('hidden')
-      video.play().catch(() => {
-        /* playback começa no próximo gesto */
-      })
-    })
+    hls.on(Hls.Events.MANIFEST_PARSED, play)
     hls.on(Hls.Events.ERROR, (_evt, data) => {
       if (!data.fatal) return
       switch (data.type) {
@@ -47,20 +54,60 @@ function attach() {
       }
     })
   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    // iOS Safari: HLS nativo
     video.src = LIVE_URL
-    video.addEventListener('loadedmetadata', () => {
-      status.textContent = 'Ao vivo'
-      overlay.classList.add('hidden')
-      video.play().catch(() => {})
-    })
+    video.addEventListener('loadedmetadata', play)
   } else {
-    status.textContent = 'Seu navegador não suporta HLS'
-    enter.disabled = true
+    showError('Seu navegador não suporta HLS')
+    enterBtn.disabled = true
   }
 }
 
-enter.addEventListener('click', () => {
-  enter.disabled = true
-  attach()
+async function login() {
+  showError('')
+  enterBtn.disabled = true
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pwEl.value }),
+    })
+    const data = await res.json().catch(() => ({}))
+    if (!res.ok) {
+      showError(data.error || 'Falha ao entrar')
+      enterBtn.disabled = false
+      return
+    }
+    loginEl.hidden = true
+    peersEl.hidden = false
+    attach()
+  } catch {
+    showError('Erro de rede')
+    enterBtn.disabled = false
+  }
+}
+
+function startHeartbeat() {
+  setInterval(async () => {
+    try {
+      const res = await fetch('/api/presence')
+      if (res.status === 401) {
+        location.reload()
+        return
+      }
+      const data = await res.json()
+      peersEl.textContent = `${data.viewers}/${data.max} assistindo`
+    } catch {
+      /* sem rede; tenta de novo no próximo ciclo */
+    }
+  }, 10000)
+}
+
+enterBtn.addEventListener('click', login)
+pwEl.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') login()
 })
+resumeBtn.addEventListener('click', () => {
+  resumeBtn.hidden = true
+  video.play().catch(() => {})
+})
+startHeartbeat()

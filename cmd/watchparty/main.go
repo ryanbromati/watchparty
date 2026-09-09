@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/ryanbromati/watchparty/internal/config"
 	"github.com/ryanbromati/watchparty/internal/session"
@@ -69,6 +70,19 @@ func runShare(args []string) int {
 	fmt.Printf("Qualidade  : %s (%d kbps)\n", opts.Quality, opts.VideoBitrateKbps())
 	fmt.Printf("Áudio      : %s\n", sess.AudioSource())
 	fmt.Println("Ctrl+C encerra a sessão")
+
+	go func() {
+		t := time.NewTicker(5 * time.Second)
+		defer t.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+				fmt.Printf("\rEspectadores: %d/%d   ", sess.Viewers(), sess.MaxViewers())
+			}
+		}
+	}()
 
 	<-ctx.Done()
 	fmt.Println("\nsessão encerrada")
