@@ -31,20 +31,21 @@
 - [x] Decisão de backend: **wf-recorder (video-only, FIFO mpegts) + ffmpeg (pulse monitor) + NVENC → HLS**.
 - [x] Resíduo a validar na Fase 6: drift A/V em filme longo; fallback = wf-recorder A/V em arquivo real (não-live) ou OBS.
 
-## Fase 1 — Esqueleto Go
+## Fase 1 — Esqueleto Go [CONCLUÍDA]
 
-- [ ] `go mod init github.com/ryanbromati/watchparty` + `cmd/watchparty/main.go`.
-- [ ] `internal/config`: flags `--transport`, `--password`, `--quality`, `--max-viewers`, `--room`, defaults + testes.
-- [ ] Ciclo de vida da sessão (`internal/app`): valida pré-requisitos, imprime banner; Ctrl+C encerra (teste manual).
-- [ ] `go vet ./...`, `go test ./...` verdes; commit.
+- [x] `go mod init github.com/ryanbromati/watchparty` + `cmd/watchparty/main.go`.
+- [x] `internal/config`: flags `--transport`, `--password`, `--quality`, `--max-viewers`, `--room`, defaults + testes.
+- [x] CLI `share` valida pré-requisitos e imprime banner; erro claro em transporte/qualidade inválidos.
+- [x] `go vet ./...`, `go test ./...` verdes; commit.
 
-## Fase 2 — Pipeline de mídia
+## Fase 2 — Pipeline de mídia [CONCLUÍDA]
 
-- [ ] `internal/capture`: builder dos args do ffmpeg (puro, testado) — fifo de vídeo + pulse de áudio → `-f hls`.
-- [ ] Supervisor de subprocessos (wf-recorder + ffmpeg): spawn, restart com backoff, stop limpo.
-- [ ] `internal/stream`: serve dir HLS, GC de segmentos, estado "ao vivo".
-- [ ] Teste de integração local (script) roda ~10s e valida `.m3u8` + `.ts` gerados.
-- [ ] Commit.
+- [x] `internal/capture`: builder dos args do ffmpeg (testado) e do wf-recorder.
+- [x] Detecção da fonte de áudio (pactl → `.monitor`, parser testado).
+- [x] Supervisor de subprocessos com restart/backoff e remoção da FIFO.
+- [x] Teste de integração headless (lavfi → HLS NVENC, playlist+segmentos).
+- [x] Teste de captura real de tela (`WATCHPARTY_SCREEN_TEST=1`) → HLS ao vivo, PASS.
+- [x] Commit.
 
 ## Fase 3 — Viewer web TS
 
