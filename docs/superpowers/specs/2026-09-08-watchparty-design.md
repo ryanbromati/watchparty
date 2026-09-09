@@ -155,3 +155,18 @@ A/V; terminal mostra "0/3" atualizado.
 | Stall no live edge do hls.js | Média | Janela 12–16s, sem LL-HLS agressivo |
 | Captura pede confirmação na tela (portal) por sessão | Baixa | Aceitar 1 clique; documentar |
 | ffmpeg sem `-f pipewire` + Hyprland ≠ wlroots | Alta | Spike Fase 0 decide backend de captura antes de mais código |
+
+## Mudanças aprovadas durante a implementação
+
+- **Senha**: escolha do usuário; pode ser **vazia** (sala sem senha) — perguntada no
+  terminal com eco oculto quando não passada por `-password`.
+- **Captura**: confirmado que o Hyprland suporta `wf-recorder` (wlr-screencopy) —
+  **sem diálogo de portal**; ffmpeg do Arch não tem `-f pipewire`.
+- **Qualidade**: `-quality 720p` aplica **scale real (1280×720)**, não só bitrate.
+- **HLS**: janela de 6 segmentos (~12s); escrita de playlist **atômica** (`temp_file`);
+  segmentos/FIFO em **RAM** (`$XDG_RUNTIME_DIR`).
+- **Encode**: `h264_nvenc` com `multipass fullres` + `rc-lookahead 20`; `wf-recorder`
+  com preset `ultrafast` no intermediário (CPU 46→~34%).
+- **Telemetria**: `GET /api/stats` (seq, bitrate, viewers) e `?debug` expõe o hls.js.
+- **A1 descartado**: `wf-recorder -c h264_nvenc` + `-c:v copy` inviável (GOP 8.3s,
+  sem controle de keyframe no wf-recorder) — futuro: helper nativo portal+PipeWire (A3).

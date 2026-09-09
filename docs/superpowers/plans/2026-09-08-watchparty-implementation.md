@@ -73,7 +73,7 @@
 - [x] Smoke `--transport local` PASS (URL, login→live 200, presence).
 - [x] Commit.
 
-## Fase 6 — Teste real [PARCIAAL: túnel público validado]
+## Fase 6 — Teste real [PARCIAL: túnel público validado]
 
 - [x] Acesso público validado de ponta a ponta via Cloudflare (200 viewer, 200 login, 200 live c/ cookie, 401 sem cookie, presence 1/3).
 - [ ] Sessão longa (≥30 min) com 3 espectadores humanos assistindo um filme — fica para o usuário rodar com amigos; valida drift A/V, stall e banda do túnel em produção.
@@ -81,6 +81,22 @@
 ## Fase 7 — Polish [CONCLUÍDA]
 
 - [x] Mensagens acionáveis (pré-requisitos, transporte) e banner com URL pública/local.
-- [x] README (uso, requisitos, flags, notas) e Makefile (web/build/test/vet/smoke).
+- [x] README (uso, requisitos, flags, notas) e Makefile (web/build/test/vet/smoke/run/run-local).
 - [x] Testes: 33 verdes; smoke local e público PASS.
-- [ ] Push inicial para o GitHub (a combinar).
+- [x] Push inicial para o GitHub (`61f8a98..b0d768a`).
+
+## Fase 8 — Benchmark e otimizações [CONCLUÍDA]
+
+- [x] Telemetria: `GET /api/stats` + expor hls.js com `?debug` (live latency).
+- [x] `temp_file` no ffmpeg (playlist escrita de forma atômica — eliminou 404/leitura vazia transitória).
+- [x] Harness `scripts/bench/` (agentes headless) + `run.sh`; resultados em `scripts/bench/results/`; relatório em `docs/superpowers/bench/`.
+- [x] Benchmark: **0 stalls** em local/cloudflare (720p e 1080p ×3); cadência ~2.08s; fetch p95 374–477ms (cloudflare); live latency **~6.6s** (hls.js); CPU: wf-recorder 46–52% → **~34%** (ultrafast), ffmpeg ~15%, NVENC picos 0–19%.
+- [x] Otimizações aplicadas: scale real 720p (1280×720); janela HLS 8→6; hls.js `liveSyncDurationCount` 3→2; HLS em RAM (`XDG_RUNTIME_DIR`/tmpfs); gzip + `Cache-Control` da playlist; NVENC `multipass fullres` + `rc-lookahead 20`.
+- [x] **A1 (eliminar re-encode via `wf-recorder -c h264_nvenc` + `-c:v copy`) NÃO viável**: GOP do wf-recorder = 250 (I-frame a cada 8.3s) sem controle de keyframe → segmentos HLS ~8s. Caminho de um processo só fica como **A3 futuro** (helper nativo portal+PipeWire).
+- [x] Push (`main` sincronizado).
+
+## Pendências / próximos passos
+
+- [ ] Re-medir live latency pós-B1 (esperado ~4–5s) e registrar no relatório.
+- [ ] Teste de campo: filme inteiro (≥30 min) com 3 amigos — drift A/V, stall e banda em produção.
+- [ ] Opcionais: AV1 (`av1_nvenc`) para menos upload; Tailscale Funnel (medir); **A3** helper nativo portal+PipeWire (1 processo, 1 relógio, GOP controlado).

@@ -43,6 +43,9 @@ make web     # compila o viewer para internal/webui/dist (embutido no binário)
 make build   # gera ./bin/watchparty
 
 make run     # build + watchparty + Cloudflare (pergunta a senha; Enter = sem senha)
+make run-local  # mesmo app, sem túnel (rede local)
+
+# variáveis: make run TRANSPORT=tailscale QUALITY=1080p MAXVIEWERS=5
 
 ./bin/watchparty share -transport cloudflare -password minha-senha -room sala1
 # URL pública e senha aparecem no terminal; compartilhe com os amigos.
@@ -59,11 +62,26 @@ Flags do `share`:
 | `-transport` | `tailscale` | `local` \| `tailscale` \| `cloudflare` |
 | `-password` | perguntada | senha da sala (vazia = sem senha; use `-password ""`) |
 | `-max-viewers` | `3` | limite de espectadores simultâneos |
-| `-quality` | `1080p` | `720p` \| `1080p` (bitrate de vídeo) |
+| `-quality` | `1080p` | `720p` \| `1080p` — bitrate + escala real (720p gera 1280×720) |
 | `-room` | auto-gerado | slug da sala no link |
 | `-audio` | auto-detectada | fonte `.monitor` do áudio do sistema |
 
-Comandos de desenvolvimento: `make test` (`go test ./...`), `make vet`, `make smoke`.
+Comandos de desenvolvimento: `make test` (`go test ./...`), `make vet`, `make smoke`,
+`make run`/`make run-local`. Benchmark reproduzível em `scripts/bench/` (`run.sh` +
+`viewer.go`).
+
+## Telemetria
+
+- `GET /api/stats` (exige sessão): `{seq, lastMediaEnd, bitrateKbps, segmentDuration,
+  viewers, maxViewers}` — usado no terminal e para testes.
+- Abra a URL com `?debug` e o objeto hls.js fica exposto em `window.__hls`
+  (ex.: `window.__hls.latency` = latência ao vivo em segundos).
+
+## Benchmark
+
+Metodologia, números e artefatos em `docs/superpowers/bench/2026-09-09-bench.md`
+(0 stalls em local e Cloudflare, 720p e 1080p ×3; latência ~6.6s medida antes do
+ajuste B1 — re-medição pós-B1 pendente, junto com o teste de campo).
 
 ## Notas
 
