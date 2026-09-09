@@ -65,11 +65,13 @@
 - [x] Contador de espectadores no terminal (5s).
 - [x] Commit.
 
-## Fase 5 — Transportes
+## Fase 5 — Transportes [CONCLUÍDA]
 
-- [ ] `internal/transport`: interface + `local` (primeiro, usado no teste E2E).
-- [ ] `tailscale` (executa `tailscale funnel --bg`, lê `status --json`).
-- [ ] `cloudflare` (executa `cloudflared`, parseia URL do log; teste com log fake).
+- [x] `internal/transport`: interface `Start(ctx, port)` + `New(kind)`.
+- [x] `local` (URL imediata), `tailscale` (funnel foreground, parse `.ts.net`), `cloudflare` (quick tunnel, parse do log) — com testes de parser.
+- [x] `session` abre o transporte e expõe `URL()`/`LocalURL()`; banner mostra pública + local.
+- [x] Smoke `--transport local` PASS (URL, login→live 200, presence).
+- [x] Commit.
 
 ## Fase 6 — Teste real
 
