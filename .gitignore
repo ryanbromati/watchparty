@@ -1,0 +1,22 @@
+# Go
+/bin/
+*.exe
+*.test
+*.out
+coverage.out
+
+# Node / viewer web
+web/node_modules/
+web/dist/
+
+# HLS temporário e artefatos de captura
+/tmp/watchparty-*
+*.m3u8
+*.m4s
+*.ts.tmp
+
+# Editor / SO
+.DS_Store
+*.swp
+.idea/
+.vscode/
