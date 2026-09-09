@@ -69,7 +69,7 @@ func runShare(args []string) int {
 		fmt.Printf("Local      : %s\n", sess.LocalURL())
 	}
 	fmt.Printf("Sala       : %s\n", sess.Room())
-	fmt.Printf("Senha      : %s  (verificação em breve)\n", opts.Password)
+	fmt.Printf("Senha      : %s\n", opts.Password)
 	fmt.Printf("Qualidade  : %s (%d kbps)\n", opts.Quality, opts.VideoBitrateKbps())
 	fmt.Printf("Áudio      : %s\n", sess.AudioSource())
 	fmt.Println("Ctrl+C encerra a sessão")
