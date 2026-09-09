@@ -47,11 +47,13 @@
 - [x] Teste de captura real de tela (`WATCHPARTY_SCREEN_TEST=1`) → HLS ao vivo, PASS.
 - [x] Commit.
 
-## Fase 3 — Viewer web TS
+## Fase 3 — Viewer web TS [CONCLUÍDA]
 
-- [ ] Scaffold `web/` (Vite/TS), hls.js, `<video>`.
-- [ ] Gate de senha (POST) e estados (ao vivo / encerrada / sala cheia).
-- [ ] `go:embed web/dist`; página servida pelo app.
+- [x] Scaffold `web/` (Vite + TS + hls.js), build → `internal/webui/dist`.
+- [x] Viewer com gate de gesto (autoplay), estados ao vivo/encerrada, fallback HLS nativo iOS.
+- [x] `internal/webui` (`go:embed`) e `internal/session` (captura + HTTP `/` + `/live/*`).
+- [x] `watchparty share` sobe captura real → viewer + HLS ao vivo em `http://127.0.0.1:PORT` (smoke E2E PASS: index, playlist, segmentos, stop limpo).
+- [x] Commit.
 
 ## Fase 4 — Auth + presença
 
